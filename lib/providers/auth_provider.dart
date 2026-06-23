@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/user.dart';
@@ -55,9 +56,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
       );
     } catch (e) {
+      String errorMessage = e.toString();
+
+      // If it's a DioException, extract the actual FastAPI validation error
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data.toString() ?? 'Server Error';
+      }
+
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: errorMessage,
       );
     }
   }
@@ -81,9 +89,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
       );
     } catch (e) {
+      String errorMessage = e.toString();
+
+      // If it's a DioException, extract the actual FastAPI validation error
+      if (e is DioException && e.response?.data != null) {
+        errorMessage = e.response?.data.toString() ?? 'Server Error';
+      }
+
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: errorMessage,
       );
     }
   }

@@ -29,17 +29,26 @@ class AuthService {
   }
 
   /// Register a new user account.
+  /// Register a new user account.
   Future<User> register({
     required String name,
     required String email,
     required String password,
   }) async {
+    // 1. Split the single Full Name into First and Last names
+    final nameParts = name.trim().split(' ');
+    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
     final response = await _api.post(
       ApiConfig.register,
       data: {
-        'name': name,
+        'first_name': firstName, // ✅ Matches backend
+        'last_name': lastName, // ✅ Matches backend
         'email': email,
         'password': password,
+        'type': 'web', // Sometimes required by the backend
+        'temp_user_id': '',
       },
     );
 
