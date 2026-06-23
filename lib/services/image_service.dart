@@ -58,7 +58,7 @@ class ImageService {
     });
 
     final response = await _api.post(
-      ApiConfig.uploadImage,
+      ApiConfig.addImage,
       data: formData,
       options: Options(
         contentType: 'multipart/form-data',
@@ -74,7 +74,7 @@ class ImageService {
     int limit = 20,
   }) async {
     final response = await _api.get(
-      ApiConfig.userImages,
+      ApiConfig.imageList,
       queryParameters: {
         'page': page,
         'limit': limit,

@@ -113,9 +113,7 @@ class _TemplateSelectionScreenState
                     label: Text(category),
                     selected: state.selectedCategory == category,
                     onSelected: (_) {
-                      ref
-                          .read(templateProvider.notifier)
-                          .setCategory(category);
+                      ref.read(templateProvider.notifier).setCategory(category);
                     },
                   );
                 },
@@ -159,8 +157,8 @@ class _TemplateSelectionScreenState
                           crossAxisSpacing: 16,
                           childAspectRatio: 0.72,
                         ),
-                        itemCount: state.templates.length +
-                            (state.hasMore ? 1 : 0),
+                        itemCount:
+                            state.templates.length + (state.hasMore ? 1 : 0),
                         itemBuilder: (context, index) {
                           if (index == state.templates.length) {
                             return const Center(

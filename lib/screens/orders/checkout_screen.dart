@@ -269,8 +269,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     '${_cityController.text}, ${_stateController.text} ${_zipController.text}',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       height: 1.5,
-                      color:
-                          theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

@@ -17,7 +17,7 @@ class PaymentService {
     String currency = 'INR',
   }) async {
     final response = await _api.post(
-      ApiConfig.initiatePayment,
+      ApiConfig.storePayment,
       data: {
         'order_id': orderId,
         'method': method.name,
@@ -39,7 +39,7 @@ class PaymentService {
     String? signature,
   }) async {
     final response = await _api.post(
-      ApiConfig.verifyPayment,
+      ApiConfig.storePayment,
       data: {
         'payment_id': paymentId,
         'transaction_id': transactionId,
@@ -52,8 +52,7 @@ class PaymentService {
 
   /// Check the current status of a payment.
   Future<Payment> getPaymentStatus(String paymentId) async {
-    final response =
-        await _api.get('${ApiConfig.paymentStatus}/$paymentId');
+    final response = await _api.get('${ApiConfig.storePayment}/$paymentId');
     return Payment.fromJson(response.data as Map<String, dynamic>);
   }
 }

@@ -34,12 +34,15 @@ class TemplateState {
     String? errorMessage,
     int? currentPage,
     bool? hasMore,
+    bool clearSelectedCategory = false,
+    bool clearSearchQuery = false,
   }) {
     return TemplateState(
       templates: templates ?? this.templates,
       categories: categories ?? this.categories,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
-      searchQuery: searchQuery ?? this.searchQuery,
+      selectedCategory:
+          clearSelectedCategory ? null : selectedCategory ?? this.selectedCategory,
+      searchQuery: clearSearchQuery ? null : searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       currentPage: currentPage ?? this.currentPage,
@@ -79,8 +82,11 @@ class TemplateNotifier extends StateNotifier<TemplateState> {
       );
     } catch (e) {
       state = state.copyWith(
+        templates: state.templates.isEmpty ? _fallbackTemplates : state.templates,
+        categories: state.categories.isEmpty ? _fallbackCategories : state.categories,
         isLoading: false,
         errorMessage: e.toString(),
+        hasMore: false,
       );
     }
   }
@@ -114,16 +120,64 @@ class TemplateNotifier extends StateNotifier<TemplateState> {
 
   /// Filter by category.
   Future<void> setCategory(String? category) async {
-    state = state.copyWith(selectedCategory: category, currentPage: 1);
+    state = state.copyWith(
+      selectedCategory: category,
+      clearSelectedCategory: category == null,
+      currentPage: 1,
+    );
     await loadTemplates();
   }
 
   /// Search templates.
   Future<void> search(String query) async {
-    state = state.copyWith(searchQuery: query.isEmpty ? null : query);
+    state = state.copyWith(
+      searchQuery: query.isEmpty ? null : query,
+      clearSearchQuery: query.isEmpty,
+    );
     await loadTemplates();
   }
 }
+
+const _fallbackCategories = ['Family', 'Travel', 'Baby', 'Wedding'];
+
+const _fallbackTemplates = [
+  Template(
+    id: 'family-classic',
+    name: 'Family Classic',
+    description: 'A clean photo book for everyday memories.',
+    thumbnailUrl: '',
+    category: 'Family',
+    pageCount: 24,
+    price: 999,
+  ),
+  Template(
+    id: 'travel-story',
+    name: 'Travel Story',
+    description: 'A bright layout for holidays and adventures.',
+    thumbnailUrl: '',
+    category: 'Travel',
+    pageCount: 32,
+    price: 1299,
+  ),
+  Template(
+    id: 'baby-first-year',
+    name: 'Baby First Year',
+    description: 'A soft album for milestones and tiny details.',
+    thumbnailUrl: '',
+    category: 'Baby',
+    pageCount: 28,
+    price: 1199,
+  ),
+  Template(
+    id: 'wedding-keepsake',
+    name: 'Wedding Keepsake',
+    description: 'A polished book for wedding highlights.',
+    thumbnailUrl: '',
+    category: 'Wedding',
+    pageCount: 40,
+    price: 1599,
+  ),
+];
 
 /// Provider for the TemplateService.
 final templateServiceProvider = Provider<TemplateService>((ref) {

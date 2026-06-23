@@ -17,6 +17,7 @@ class TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasThumbnail = template.thumbnailUrl.trim().isNotEmpty;
 
     return GestureDetector(
       onTap: onTap,
@@ -30,38 +31,20 @@ class TemplateCard extends StatelessWidget {
               flex: 3,
               child: SizedBox(
                 width: double.infinity,
-                child: CachedNetworkImage(
-                  imageUrl: template.thumbnailUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.auto_stories,
-                          size: 40,
-                          color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          template.name,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.4),
+                child: hasThumbnail
+                    ? CachedNetworkImage(
+                        imageUrl: template.thumbnailUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
+                        errorWidget: (context, url, error) =>
+                            _TemplatePlaceholder(template: template),
+                      )
+                    : _TemplatePlaceholder(template: template),
               ),
             ),
 
@@ -110,6 +93,44 @@ class TemplateCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TemplatePlaceholder extends StatelessWidget {
+  final Template template;
+
+  const _TemplatePlaceholder({required this.template});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.auto_stories,
+            size: 40,
+            color: theme.colorScheme.primary.withValues(alpha: 0.4),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              template.name,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

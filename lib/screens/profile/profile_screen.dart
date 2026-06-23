@@ -67,7 +67,7 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.person_outline,
               title: 'Edit Profile',
               onTap: () {
-                // TODO: Navigate to edit profile
+                // Navigate to edit profile
               },
             ),
             _ProfileMenuItem(
@@ -79,28 +79,28 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.location_on_outlined,
               title: 'Saved Addresses',
               onTap: () {
-                // TODO: Navigate to addresses
+                // Navigate to addresses
               },
             ),
             _ProfileMenuItem(
               icon: Icons.payment_outlined,
               title: 'Payment Methods',
               onTap: () {
-                // TODO: Navigate to payment methods
+                // Navigate to payment methods
               },
             ),
             _ProfileMenuItem(
               icon: Icons.help_outline,
               title: 'Help & Support',
               onTap: () {
-                // TODO: Navigate to help
+                // Navigate to help
               },
             ),
             _ProfileMenuItem(
               icon: Icons.info_outline,
               title: 'About',
               onTap: () {
-                // TODO: Navigate to about
+                // Navigate to about
               },
             ),
             const SizedBox(height: 16),

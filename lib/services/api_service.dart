@@ -39,21 +39,10 @@ class ApiService {
           return handler.next(options);
         },
         onError: (error, handler) async {
-          // Handle 401 by attempting a token refresh.
+          // Handle 401 by clearing tokens (user needs to log in again)
           if (error.response?.statusCode == 401) {
-            try {
-              final refreshed = await _refreshToken();
-              if (refreshed) {
-                // Retry the original request with the new token.
-                final token = await _storage.read(key: 'access_token');
-                error.requestOptions.headers['Authorization'] =
-                    'Bearer $token';
-                final retryResponse = await _dio.fetch(error.requestOptions);
-                return handler.resolve(retryResponse);
-              }
-            } catch (_) {
-              // Refresh failed — propagate original error.
-            }
+            await _storage.deleteAll();
+            // Optional: You can use a global navigator key or Riverpod to redirect to the login screen here
           }
           return handler.next(error);
         },
@@ -63,33 +52,6 @@ class ApiService {
 
   /// The underlying Dio instance.
   Dio get dio => _dio;
-
-  /// Attempt to refresh the access token using a stored refresh token.
-  Future<bool> _refreshToken() async {
-    try {
-      final refreshToken = await _storage.read(key: 'refresh_token');
-      if (refreshToken == null) return false;
-
-      final response = await Dio().post(
-        '${ApiConfig.baseUrl}${ApiConfig.refreshToken}',
-        data: {'refresh_token': refreshToken},
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data as Map<String, dynamic>;
-        await _storage.write(
-            key: 'access_token', value: data['access_token'] as String);
-        if (data['refresh_token'] != null) {
-          await _storage.write(
-              key: 'refresh_token', value: data['refresh_token'] as String);
-        }
-        return true;
-      }
-      return false;
-    } catch (_) {
-      return false;
-    }
-  }
 
   // ── Convenience HTTP methods ───────────────────────────────────
 

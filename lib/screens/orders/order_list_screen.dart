@@ -61,8 +61,8 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
                       Icon(
                         Icons.receipt_long_outlined,
                         size: 80,
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.2),
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.2),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -94,9 +94,9 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
                   child: ListView.separated(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16),
-                    itemCount:
-                        state.orders.length + (state.hasMore ? 1 : 0),
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    itemCount: state.orders.length + (state.hasMore ? 1 : 0),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       if (index == state.orders.length) {
                         return const Center(

@@ -50,11 +50,7 @@ class AuthService {
 
   /// Logout the current user and clear stored tokens.
   Future<void> logout() async {
-    try {
-      await _api.post(ApiConfig.logout);
-    } finally {
-      await _storage.deleteAll();
-    }
+    await _storage.deleteAll();
   }
 
   /// Request a password reset email.

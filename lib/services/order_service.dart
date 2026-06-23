@@ -13,7 +13,7 @@ class OrderService {
     required String shippingAddressId,
   }) async {
     final response = await _api.post(
-      ApiConfig.createOrder,
+      ApiConfig.storeOrder,
       data: {
         'template_id': templateId,
         'items': items.map((e) => e.toJson()).toList(),
@@ -37,14 +37,12 @@ class OrderService {
     if (status != null) queryParams['status'] = status;
 
     final response = await _api.get(
-      ApiConfig.orders,
+      ApiConfig.orderList,
       queryParameters: queryParams,
     );
 
     final list = response.data['orders'] as List<dynamic>;
-    return list
-        .map((e) => Order.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return list.map((e) => Order.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Fetch a single order by its ID.
@@ -56,7 +54,7 @@ class OrderService {
   /// Cancel an existing order.
   Future<Order> cancelOrder(String orderId) async {
     final response =
-        await _api.post('${ApiConfig.cancelOrder}/$orderId/cancel');
+        await _api.post('${ApiConfig.updateOrder}/$orderId/cancel');
     return Order.fromJson(response.data as Map<String, dynamic>);
   }
 }

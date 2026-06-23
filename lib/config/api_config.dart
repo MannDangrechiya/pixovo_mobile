@@ -3,7 +3,8 @@ class ApiConfig {
   ApiConfig._();
 
   /// Base URL for the Pixovo API.
-  static const String baseUrl = 'https://api.pixovo.com/v1';
+  /// Set this to https://pixovo.com/api/front-end to keep route strings clean.
+  static const String baseUrl = 'https://pixovo.com/api/front-end';
 
   /// Request timeout duration in milliseconds.
   static const int connectTimeout = 15000;
@@ -11,41 +12,51 @@ class ApiConfig {
   static const int sendTimeout = 30000;
 
   // ── Auth Endpoints ──────────────────────────────────────────────
-  static const String login = '/auth/login';
-  static const String register = '/auth/register';
-  static const String logout = '/auth/logout';
-  static const String refreshToken = '/auth/refresh';
-  static const String forgotPassword = '/auth/forgot-password';
-  static const String resetPassword = '/auth/reset-password';
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String socialLogin = '/social-login';
+  static const String facebookLogin = '/facebook-login';
+  static const String guestRegister = '/guest-register';
+  static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
+  static const String changePassword = '/change_password';
 
-  // ── User Endpoints ─────────────────────────────────────────────
-  static const String userProfile = '/user/profile';
-  static const String updateProfile = '/user/profile';
+  // ── Profile Endpoints ─────────────────────────────────────────────
+  static const String userProfile = '/profile/detail';
+  static const String updateProfile = '/profile/update';
 
   // ── Template Endpoints ─────────────────────────────────────────
-  static const String templates = '/templates';
-  static const String templateDetail = '/templates'; // append /{id}
-  static const String templateCategories = '/templates/categories';
+  static const String templatesList = '/template/list';
+  static const String templateDetail = '/template/detail';
+  static const String allTemplatesList = '/template/all-list';
 
   // ── Image Endpoints ────────────────────────────────────────────
-  static const String uploadImage = '/images/upload';
-  static const String userImages = '/images';
-  static const String deleteImage = '/images'; // append /{id}
+  static const String addImage = '/image/add';
+  static const String tempAddImage = '/image/temp-add';
+  static const String imageList = '/image/list';
+  static const String imageDetail = '/image/detail';
+  static const String storeFacebookImage = '/image/store-facebook';
+  static const String deleteImage = '/image/delete';
+  static const String imageAiText = '/image/image-ai-text';
 
-  // ── Order Endpoints ────────────────────────────────────────────
-  static const String orders = '/orders';
-  static const String orderDetail = '/orders'; // append /{id}
-  static const String createOrder = '/orders';
-  static const String cancelOrder = '/orders'; // append /{id}/cancel
+  // ── Order & Cart Endpoints ────────────────────────────────────────────
+  static const String storeOrder = '/order/store';
+  static const String updateOrder = '/order/update';
+  static const String orderDetail = '/order/detail';
+  static const String orderList = '/order/list';
+  static const String cart = '/order/user-order-cart';
+  static const String deleteCartItem = '/order/user-order-cart-delete';
+  static const String applyPromotion = '/order/apply-promotion';
+  static const String createPdf = '/order/pdf-create';
 
   // ── Payment Endpoints ──────────────────────────────────────────
-  static const String initiatePayment = '/payments/initiate';
-  static const String verifyPayment = '/payments/verify';
-  static const String paymentStatus = '/payments'; // append /{id}
+  static const String storePayment = '/payment/store';
 
   // ── Shipping Endpoints ─────────────────────────────────────────
-  static const String shippingAddresses = '/user/addresses';
-  static const String addAddress = '/user/addresses';
-  static const String updateAddress = '/user/addresses'; // append /{id}
-  static const String deleteAddress = '/user/addresses'; // append /{id}
+  static const String shippingAddressesList = '/shipping-address/list';
+  static const String addAddress = '/shipping-address/store';
+  static const String updateAddress =
+      '/shipping-address/update'; // append /{id}
+  static const String deleteAddress =
+      '/shipping-address/delete'; // append /{id}
 }

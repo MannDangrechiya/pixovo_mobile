@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   AppTheme._();
 
-  // ── Brand Colors ───────────────────────────────────────────────
   static const Color _primaryLight = Color(0xFF6C63FF);
   static const Color _primaryDark = Color(0xFF8B83FF);
   static const Color _secondary = Color(0xFFFF6584);
@@ -18,7 +17,6 @@ class AppTheme {
   static const Color _error = Color(0xFFFF4757);
   static const Color _info = Color(0xFF45AAF2);
 
-  // ── Light Theme ────────────────────────────────────────────────
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -34,9 +32,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: _surfaceLight,
-      textTheme: GoogleFonts.interTextTheme(
-        ThemeData.light().textTheme,
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF2D3142),
@@ -51,9 +47,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.08),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: Colors.white,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -62,9 +56,8 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -75,9 +68,8 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: _primaryLight,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           side: const BorderSide(color: _primaryLight, width: 1.5),
           textStyle: GoogleFonts.inter(
             fontSize: 16,
@@ -88,7 +80,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -120,10 +113,9 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: _primaryLight.withValues(alpha: 0.1),
         selectedColor: _primaryLight,
-        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        labelStyle:
+            GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dividerTheme: DividerThemeData(
         color: Colors.grey.shade200,
@@ -132,7 +124,6 @@ class AppTheme {
     );
   }
 
-  // ── Dark Theme ─────────────────────────────────────────────────
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -148,9 +139,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       scaffoldBackgroundColor: _backgroundDark,
-      textTheme: GoogleFonts.interTextTheme(
-        ThemeData.dark().textTheme,
-      ),
+      textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
       appBarTheme: AppBarTheme(
         backgroundColor: _surfaceDark,
         foregroundColor: const Color(0xFFE8E8F0),
@@ -165,9 +154,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.3),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         color: _cardDark,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -176,9 +163,8 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -189,9 +175,8 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: _primaryDark,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           side: const BorderSide(color: _primaryDark, width: 1.5),
           textStyle: GoogleFonts.inter(
             fontSize: 16,
@@ -202,7 +187,8 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: _cardDark,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade800),
@@ -234,10 +220,9 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: _primaryDark.withValues(alpha: 0.15),
         selectedColor: _primaryDark,
-        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        labelStyle:
+            GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       dividerTheme: DividerThemeData(
         color: Colors.grey.shade800,
@@ -246,7 +231,6 @@ class AppTheme {
     );
   }
 
-  // ── Shared Semantic Colors ─────────────────────────────────────
   static Color get success => _success;
   static Color get warning => _warning;
   static Color get error => _error;

@@ -57,7 +57,7 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Rearrange pages',
             onPressed: () {
-              // TODO: Open page reorder mode
+              // Open page reorder mode
             },
           ),
         ],

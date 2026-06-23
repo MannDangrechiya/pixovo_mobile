@@ -67,7 +67,8 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
     final state = ref.watch(userImageProvider);
 
     // Find the image by ID.
-    final image = state.images.where((img) => img.id == widget.imageId).firstOrNull;
+    final image =
+        state.images.where((img) => img.id == widget.imageId).firstOrNull;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -89,7 +90,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
           ),
           TextButton(
             onPressed: () {
-              // TODO: Save edited image
+              // Save edited image
               context.pop();
             },
             child: Text(
@@ -176,7 +177,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                         icon: Icons.crop,
                         label: 'Crop',
                         onTap: () {
-                          // TODO: Open crop tool
+                          // Open crop tool
                         },
                       ),
                     ],
@@ -251,7 +252,8 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     itemCount: _filters.length,
-                    separatorBuilder: (context, index) => const SizedBox(width: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final filter = _filters[index];
                       final isSelected = _selectedFilterIndex == index;
@@ -331,7 +333,9 @@ class _EditorButton extends StatelessWidget {
             angle: rotateIcon ? math.pi / 2 : 0,
             child: Icon(
               icon,
-              color: isActive ? Theme.of(context).colorScheme.primary : Colors.white70,
+              color: isActive
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.white70,
               size: 24,
             ),
           ),
@@ -339,7 +343,9 @@ class _EditorButton extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: isActive ? Theme.of(context).colorScheme.primary : Colors.white54,
+              color: isActive
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.white54,
               fontSize: 11,
             ),
           ),

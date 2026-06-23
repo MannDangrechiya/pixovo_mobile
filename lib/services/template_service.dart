@@ -21,7 +21,7 @@ class TemplateService {
     if (search != null) queryParams['search'] = search;
 
     final response = await _api.get(
-      ApiConfig.templates,
+      ApiConfig.templatesList,
       queryParameters: queryParams,
     );
 
@@ -33,14 +33,13 @@ class TemplateService {
 
   /// Fetch a single template by its ID.
   Future<Template> getTemplateDetail(String templateId) async {
-    final response =
-        await _api.get('${ApiConfig.templateDetail}/$templateId');
+    final response = await _api.get('${ApiConfig.templateDetail}/$templateId');
     return Template.fromJson(response.data as Map<String, dynamic>);
   }
 
   /// Fetch available template categories.
   Future<List<String>> getCategories() async {
-    final response = await _api.get(ApiConfig.templateCategories);
+    final response = await _api.get(ApiConfig.allTemplatesList);
     final list = response.data['categories'] as List<dynamic>;
     return list.map((e) => e as String).toList();
   }
