@@ -17,13 +17,23 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    // Build display name: prefer 'name', fall back to first_name + last_name
+    String name = json['name'] as String? ?? '';
+    if (name.isEmpty) {
+      final first = json['first_name'] as String? ?? '';
+      final last = json['last_name'] as String? ?? '';
+      name = '$first $last'.trim();
+    }
+
     return User(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      email: json['email'] as String,
+      id: json['id'].toString(),
+      name: name,
+      email: (json['email'] as String?) ?? '',
       phone: json['phone'] as String?,
       avatarUrl: json['avatar_url'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 

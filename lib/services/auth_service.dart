@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../config/api_config.dart';
@@ -8,6 +9,17 @@ import 'api_service.dart';
 class AuthService {
   final ApiService _api = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+
+  /// Extracts the payload from an API response, unwrapping
+  /// nested structures like `{status: ..., data: {...}}`.
+  Map<String, dynamic> _unwrapResponse(dynamic responseData) {
+    final data = responseData as Map<String, dynamic>;
+    // If the response has a nested 'data' key, unwrap it
+    if (data.containsKey('data') && data['data'] is Map<String, dynamic>) {
+      return data['data'] as Map<String, dynamic>;
+    }
+    return data;
+  }
 
   /// Login with email and password.
   /// Returns the authenticated [User] on success.
@@ -20,12 +32,18 @@ class AuthService {
       data: {
         'email': email,
         'password': password,
+        'temp_user_id': '',
       },
     );
 
-    final data = response.data as Map<String, dynamic>;
+    developer.log('Login response: ${response.data}', name: 'AuthService');
+
+    final data = _unwrapResponse(response.data);
     await _storeTokens(data);
-    return User.fromJson(data['user'] as Map<String, dynamic>);
+
+    // 'user' may be nested under a key or at the top level
+    final userJson = data['user'] as Map<String, dynamic>? ?? data;
+    return User.fromJson(userJson);
   }
 
   /// Register a new user account.
@@ -53,8 +71,14 @@ class AuthService {
     );
 
     final data = response.data as Map<String, dynamic>;
-    await _storeTokens(data);
-    return User.fromJson(data['user'] as Map<String, dynamic>);
+
+    developer.log('Register response: ${response.data}', name: 'AuthService');
+
+    final unwrapped = _unwrapResponse(data);
+    await _storeTokens(unwrapped);
+
+    final userJson = unwrapped['user'] as Map<String, dynamic>? ?? unwrapped;
+    return User.fromJson(userJson);
   }
 
   /// Logout the current user and clear stored tokens.
@@ -103,9 +127,14 @@ class AuthService {
 
   /// Store access and refresh tokens securely.
   Future<void> _storeTokens(Map<String, dynamic> data) async {
-    if (data['access_token'] != null) {
+    // Some APIs return 'token' instead of 'access_token'
+    final accessToken = data['access_token'] ?? data['token'];
+    if (accessToken != null) {
+      developer.log('Storing access token', name: 'AuthService');
       await _storage.write(
-          key: 'access_token', value: data['access_token'] as String);
+          key: 'access_token', value: accessToken.toString());
+    } else {
+      developer.log('WARNING: No access_token or token found in response. Keys: ${data.keys.toList()}', name: 'AuthService');
     }
     if (data['refresh_token'] != null) {
       await _storage.write(

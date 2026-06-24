@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/user.dart';
@@ -39,6 +40,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authService) : super(const AuthState());
 
+  /// Extracts a user-friendly error message from API error responses.
+  /// Handles FastAPI validation errors (detail as List) and standard formats.
+  String _extractErrorMessage(Map<String, dynamic> data) {
+    // FastAPI returns detail as a List of validation errors
+    final detail = data['detail'];
+    if (detail is List && detail.isNotEmpty) {
+      final first = detail.first;
+      if (first is Map<String, dynamic>) {
+        return first['msg'] as String? ?? first.toString();
+      }
+      return first.toString();
+    }
+    if (detail is String) return detail;
+
+    // Other common API error formats
+    if (data['message'] is String) return data['message'] as String;
+    if (data['error'] is String) return data['error'] as String;
+    if (data['msg'] is String) return data['msg'] as String;
+
+    return data.toString();
+  }
+
   /// Attempt login with email/password.
   Future<void> login({
     required String email,
@@ -56,11 +79,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
       );
     } catch (e) {
-      String errorMessage = e.toString();
+      String errorMessage = 'Login failed. Please try again.';
 
-      // If it's a DioException, extract the actual FastAPI validation error
-      if (e is DioException && e.response?.data != null) {
-        errorMessage = e.response?.data.toString() ?? 'Server Error';
+      if (e is DioException) {
+        debugPrint('Login DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+        if (e.response?.data != null) {
+          final data = e.response!.data;
+          if (data is Map<String, dynamic>) {
+            errorMessage = _extractErrorMessage(data);
+          } else {
+            errorMessage = data.toString();
+          }
+        } else if (e.type == DioExceptionType.connectionTimeout ||
+                   e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Connection timed out. Please check your internet.';
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = 'No internet connection.';
+        }
+      } else {
+        debugPrint('Login error: $e');
       }
 
       state = state.copyWith(
@@ -89,11 +126,25 @@ class AuthNotifier extends StateNotifier<AuthState> {
         isAuthenticated: true,
       );
     } catch (e) {
-      String errorMessage = e.toString();
+      String errorMessage = 'Registration failed. Please try again.';
 
-      // If it's a DioException, extract the actual FastAPI validation error
-      if (e is DioException && e.response?.data != null) {
-        errorMessage = e.response?.data.toString() ?? 'Server Error';
+      if (e is DioException) {
+        debugPrint('Register DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+        if (e.response?.data != null) {
+          final data = e.response!.data;
+          if (data is Map<String, dynamic>) {
+            errorMessage = _extractErrorMessage(data);
+          } else {
+            errorMessage = data.toString();
+          }
+        } else if (e.type == DioExceptionType.connectionTimeout ||
+                   e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Connection timed out. Please check your internet.';
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = 'No internet connection.';
+        }
+      } else {
+        debugPrint('Register error: $e');
       }
 
       state = state.copyWith(
