@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
+import '../screens/auth/forgot_password_screen.dart';
 import '../screens/home/template_selection_screen.dart';
+import '../screens/home/template_detail_screen.dart';
 import '../screens/editor/image_upload_screen.dart';
 import '../screens/editor/image_dashboard_screen.dart';
 import '../screens/editor/image_editor_screen.dart';
@@ -24,7 +26,9 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String signup = '/signup';
+  static const String forgotPassword = '/forgot-password';
   static const String home = '/home';
+  static const String templateDetail = '/template/detail';
   static const String imageUpload = '/editor/upload';
   static const String imageDashboard = '/editor/dashboard';
   static const String imageEditor = '/editor/edit';
@@ -59,9 +63,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SignupScreen(),
       ),
       GoRoute(
+        path: AppRoutes.forgotPassword,
+        name: 'forgotPassword',
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.home,
         name: 'home',
         builder: (context, state) => const TemplateSelectionScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.templateDetail,
+        name: 'templateDetail',
+        builder: (context, state) {
+          final templateId = state.uri.queryParameters['templateId'] ?? '';
+          return TemplateDetailScreen(templateId: templateId);
+        },
       ),
       GoRoute(
         path: AppRoutes.imageUpload,

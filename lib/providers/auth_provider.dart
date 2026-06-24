@@ -112,6 +112,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required String name,
     required String email,
     required String password,
+    required String phone,
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -119,6 +120,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         name: name,
         email: email,
         password: password,
+        phone: phone,
       );
       state = state.copyWith(
         user: user,
@@ -161,6 +163,45 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _authService.logout();
     } finally {
       state = const AuthState();
+    }
+  }
+
+  /// Proceed as guest.
+  Future<void> guestLogin() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final user = await _authService.guestRegister();
+      state = state.copyWith(
+        user: user,
+        isLoading: false,
+        isAuthenticated: true,
+      );
+    } catch (e) {
+      String errorMessage = 'Guest login failed. Please try again.';
+
+      if (e is DioException) {
+        debugPrint('Guest Login DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+        if (e.response?.data != null) {
+          final data = e.response!.data;
+          if (data is Map<String, dynamic>) {
+            errorMessage = _extractErrorMessage(data);
+          } else {
+            errorMessage = data.toString();
+          }
+        } else if (e.type == DioExceptionType.connectionTimeout ||
+                   e.type == DioExceptionType.receiveTimeout) {
+          errorMessage = 'Connection timed out. Please check your internet.';
+        } else if (e.type == DioExceptionType.connectionError) {
+          errorMessage = 'No internet connection.';
+        }
+      } else {
+        debugPrint('Guest Login error: $e');
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: errorMessage,
+      );
     }
   }
 

@@ -9,6 +9,8 @@ class Template {
   final int pageCount;
   final double price;
   final String? currency;
+  final List<String>? availableSizes;
+  final List<String>? availableCovers;
 
   const Template({
     required this.id,
@@ -20,6 +22,8 @@ class Template {
     required this.pageCount,
     required this.price,
     this.currency = 'INR',
+    this.availableSizes,
+    this.availableCovers,
   });
 
   factory Template.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,12 @@ class Template {
       pageCount: json['page_count'] as int,
       price: (json['price'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'INR',
+      availableSizes: (json['available_sizes'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      availableCovers: (json['available_covers'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
   }
 
@@ -50,6 +60,8 @@ class Template {
       'page_count': pageCount,
       'price': price,
       'currency': currency,
+      'available_sizes': availableSizes,
+      'available_covers': availableCovers,
     };
   }
 
@@ -63,6 +75,8 @@ class Template {
     int? pageCount,
     double? price,
     String? currency,
+    List<String>? availableSizes,
+    List<String>? availableCovers,
   }) {
     return Template(
       id: id ?? this.id,
@@ -74,6 +88,8 @@ class Template {
       pageCount: pageCount ?? this.pageCount,
       price: price ?? this.price,
       currency: currency ?? this.currency,
+      availableSizes: availableSizes ?? this.availableSizes,
+      availableCovers: availableCovers ?? this.availableCovers,
     );
   }
 }

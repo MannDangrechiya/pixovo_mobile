@@ -13,6 +13,7 @@ class TemplateState {
   final String? errorMessage;
   final int currentPage;
   final bool hasMore;
+  final Template? selectedTemplate;
 
   const TemplateState({
     this.templates = const [],
@@ -23,6 +24,7 @@ class TemplateState {
     this.errorMessage,
     this.currentPage = 1,
     this.hasMore = true,
+    this.selectedTemplate,
   });
 
   TemplateState copyWith({
@@ -34,6 +36,7 @@ class TemplateState {
     String? errorMessage,
     int? currentPage,
     bool? hasMore,
+    Template? selectedTemplate,
     bool clearSelectedCategory = false,
     bool clearSearchQuery = false,
   }) {
@@ -47,6 +50,7 @@ class TemplateState {
       errorMessage: errorMessage,
       currentPage: currentPage ?? this.currentPage,
       hasMore: hasMore ?? this.hasMore,
+      selectedTemplate: selectedTemplate ?? this.selectedTemplate,
     );
   }
 }
@@ -135,6 +139,23 @@ class TemplateNotifier extends StateNotifier<TemplateState> {
       clearSearchQuery: query.isEmpty,
     );
     await loadTemplates();
+  }
+
+  /// Load a single template detail.
+  Future<void> loadTemplateDetail(String id) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final template = await _templateService.getTemplateDetail(id);
+      state = state.copyWith(
+        selectedTemplate: template,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
   }
 }
 

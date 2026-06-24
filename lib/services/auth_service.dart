@@ -52,6 +52,7 @@ class AuthService {
     required String name,
     required String email,
     required String password,
+    required String phone,
   }) async {
     // 1. Split the single Full Name into First and Last names
     final nameParts = name.trim().split(' ');
@@ -65,6 +66,7 @@ class AuthService {
         'last_name': lastName, // ✅ Matches backend
         'email': email,
         'password': password,
+        'phone': phone,
         'type': 'web', // Sometimes required by the backend
         'temp_user_id': '',
       },
@@ -84,6 +86,22 @@ class AuthService {
   /// Logout the current user and clear stored tokens.
   Future<void> logout() async {
     await _storage.deleteAll();
+  }
+
+  /// Register as a guest user.
+  Future<User> guestRegister() async {
+    final response = await _api.post(
+      ApiConfig.guestRegister,
+      data: {},
+    );
+
+    developer.log('Guest Register response: ${response.data}', name: 'AuthService');
+
+    final data = _unwrapResponse(response.data);
+    await _storeTokens(data);
+
+    final userJson = data['user'] as Map<String, dynamic>? ?? data;
+    return User.fromJson(userJson);
   }
 
   /// Request a password reset email.

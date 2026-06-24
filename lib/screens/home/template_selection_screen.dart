@@ -174,7 +174,7 @@ class _TemplateSelectionScreenState
                             template: template,
                             onTap: () {
                               context.push(
-                                '${AppRoutes.imageUpload}?templateId=${template.id}',
+                                '${AppRoutes.templateDetail}?templateId=${template.id}',
                               );
                             },
                           );

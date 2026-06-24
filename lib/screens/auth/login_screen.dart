@@ -49,6 +49,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _handleGuestLogin() async {
+    await ref.read(authProvider.notifier).guestLogin();
+
+    if (!mounted) return;
+
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated) {
+      context.go(AppRoutes.home);
+    } else if (authState.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authState.errorMessage!),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -151,9 +169,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {
-                      // Navigate to forgot password screen
-                    },
+                    onPressed: () => context.push(AppRoutes.forgotPassword),
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(
@@ -180,6 +196,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           )
                         : const Text('Sign In'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Guest Login button
+                SizedBox(
+                  height: 56,
+                  child: OutlinedButton(
+                    onPressed: authState.isLoading ? null : _handleGuestLogin,
+                    child: const Text('Continue as Guest'),
                   ),
                 ),
                 const SizedBox(height: 32),
