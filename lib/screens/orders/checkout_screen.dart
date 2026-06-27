@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/routes.dart';
+import '../../models/shipping_address.dart';
+import '../../models/payment.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/address_provider.dart';
+import '../../widgets/add_address_sheet.dart';
 
-/// Checkout screen with shipping address form and order summary.
+/// Checkout screen — three steps: Address → Review → Payment.
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -14,30 +18,23 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _line1Controller = TextEditingController();
-  final _line2Controller = TextEditingController();
-  final _cityController = TextEditingController();
-  final _stateController = TextEditingController();
-  final _zipController = TextEditingController();
-  final _phoneController = TextEditingController();
   int _currentStep = 0;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.upi;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _line1Controller.dispose();
-    _line2Controller.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
-    _zipController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(addressProvider.notifier).loadAddresses();
+    });
   }
 
-  Future<void> _placeOrder() async {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _handlePlaceOrder() async {
+    final addrState = ref.read(addressProvider);
+    if (addrState.selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a delivery address.')),
+      );
       setState(() => _currentStep = 0);
       return;
     }
@@ -47,18 +44,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     final order = await ref.read(orderProvider.notifier).placeOrder(
           templateId: orderState.cartItems.first.templateId,
-          shippingAddressId: 'temp-address-id', // Will be set by backend
+          shippingAddressId: addrState.selectedAddress!.id ?? '',
         );
 
     if (!mounted) return;
 
     if (order != null) {
-      context.go('${AppRoutes.thankYou}?orderId=${order.id}');
+      // Navigate to payment gateway screen.
+      context.push(
+        '${AppRoutes.payment}?orderId=${order.id}&amount=${order.totalAmount}',
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            ref.read(orderProvider).errorMessage ?? 'Failed to place order',
+            ref.read(orderProvider).errorMessage ?? 'Failed to place order.',
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
@@ -66,10 +66,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
+  void _openAddSheet() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const AddAddressSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final state = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider);
+    final addrState = ref.watch(addressProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -83,11 +95,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         currentStep: _currentStep,
         onStepContinue: () {
           if (_currentStep == 0) {
-            if (_formKey.currentState!.validate()) {
-              setState(() => _currentStep = 1);
+            if (addrState.selectedAddress == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text('Please select a delivery address.')),
+              );
+              return;
             }
+            setState(() => _currentStep = 1);
           } else if (_currentStep == 1) {
-            _placeOrder();
+            setState(() => _currentStep = 2);
+          } else {
+            _handlePlaceOrder();
           }
         },
         onStepCancel: () {
@@ -98,132 +117,100 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           }
         },
         onStepTapped: (step) => setState(() => _currentStep = step),
+        controlsBuilder: (context, details) {
+          final isLast = _currentStep == 2;
+          return Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Row(
+              children: [
+                SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: orderState.isLoading ? null : details.onStepContinue,
+                    child: orderState.isLoading && isLast
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(isLast ? 'Place Order' : 'Continue'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                if (_currentStep > 0)
+                  TextButton(
+                    onPressed: details.onStepCancel,
+                    child: const Text('Back'),
+                  ),
+              ],
+            ),
+          );
+        },
         steps: [
-          // Step 1: Shipping address
+          // ── Step 1: Select Address ──────────────────────────────────
           Step(
-            title: const Text('Shipping Address'),
+            title: const Text('Delivery Address'),
             isActive: _currentStep >= 0,
             state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-            content: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Full Name',
-                      prefixIcon: Icon(Icons.person_outline),
-                    ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _line1Controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Address Line 1',
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                    ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Required' : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _line2Controller,
-                    decoration: const InputDecoration(
-                      labelText: 'Address Line 2 (Optional)',
-                      prefixIcon: Icon(Icons.location_on_outlined),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (addrState.isLoading)
+                  const Center(child: CircularProgressIndicator())
+                else if (addrState.addresses.isEmpty)
+                  Column(
                     children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _cityController,
-                          decoration: const InputDecoration(
-                            labelText: 'City',
-                          ),
-                          validator: (v) =>
-                              v == null || v.isEmpty ? 'Required' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _stateController,
-                          decoration: const InputDecoration(
-                            labelText: 'State',
-                          ),
-                          validator: (v) =>
-                              v == null || v.isEmpty ? 'Required' : null,
-                        ),
+                      const Text('No saved addresses. Add one to continue.'),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: _openAddSheet,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Address'),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _zipController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'PIN Code',
-                          ),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Required';
-                            if (v.length != 6) return 'Must be 6 digits';
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _phoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone',
-                          ),
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Required';
-                            if (v.length < 10) return 'Invalid phone';
-                            return null;
-                          },
-                        ),
-                      ),
-                    ],
+                  )
+                else ...[
+                  ...addrState.addresses.map((addr) => _AddressTile(
+                        address: addr,
+                        isSelected: addrState.selectedAddress?.id == addr.id,
+                        onTap: () =>
+                            ref.read(addressProvider.notifier).selectAddress(addr),
+                      )),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: _openAddSheet,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Address'),
                   ),
                 ],
-              ),
+              ],
             ),
           ),
 
-          // Step 2: Review & Place Order
+          // ── Step 2: Review Order ───────────────────────────────────
           Step(
             title: const Text('Review Order'),
             isActive: _currentStep >= 1,
+            state: _currentStep > 1 ? StepState.complete : StepState.indexed,
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Order summary
                 Text(
                   'Order Summary',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
-                ...state.cartItems.map((item) => Padding(
+                ...orderState.cartItems.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Text(
-                              '${item.templateName} x${item.quantity}',
-                            ),
+                            child: Text('${item.templateName} x${item.quantity}'),
                           ),
                           Text(
                             '₹${item.totalPrice.toStringAsFixed(2)}',
@@ -238,12 +225,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   children: [
                     Text(
                       'Total',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
-                      '₹${state.cartTotal.toStringAsFixed(2)}',
+                      '₹${orderState.cartTotal.toStringAsFixed(2)}',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         color: theme.colorScheme.primary,
@@ -252,37 +238,200 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Shipping address summary
-                if (_nameController.text.isNotEmpty) ...[
+                if (addrState.selectedAddress != null) ...[
                   Text(
                     'Shipping to:',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    '${_nameController.text}\n'
-                    '${_line1Controller.text}'
-                    '${_line2Controller.text.isNotEmpty ? '\n${_line2Controller.text}' : ''}\n'
-                    '${_cityController.text}, ${_stateController.text} ${_zipController.text}',
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    '${addrState.selectedAddress!.name}\n'
+                    '${addrState.selectedAddress!.formattedAddress}',
+                    style: theme.textTheme.bodySmall?.copyWith(
                       height: 1.5,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                      color:
+                          theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
+              ],
+            ),
+          ),
 
-                if (state.isLoading)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
+          // ── Step 3: Payment Method ─────────────────────────────────
+          Step(
+            title: const Text('Payment'),
+            isActive: _currentStep >= 2,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Payment Method',
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                _PaymentMethodTile(
+                  label: 'UPI',
+                  icon: Icons.currency_rupee,
+                  value: PaymentMethod.upi,
+                  groupValue: _selectedPaymentMethod,
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                ),
+                _PaymentMethodTile(
+                  label: 'Credit / Debit Card',
+                  icon: Icons.credit_card,
+                  value: PaymentMethod.card,
+                  groupValue: _selectedPaymentMethod,
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                ),
+                _PaymentMethodTile(
+                  label: 'Net Banking',
+                  icon: Icons.account_balance_outlined,
+                  value: PaymentMethod.netBanking,
+                  groupValue: _selectedPaymentMethod,
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                ),
+                _PaymentMethodTile(
+                  label: 'Wallet',
+                  icon: Icons.account_balance_wallet_outlined,
+                  value: PaymentMethod.wallet,
+                  groupValue: _selectedPaymentMethod,
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                ),
+                _PaymentMethodTile(
+                  label: 'Cash on Delivery',
+                  icon: Icons.local_shipping_outlined,
+                  value: PaymentMethod.cod,
+                  groupValue: _selectedPaymentMethod,
+                  onChanged: (v) => setState(() => _selectedPaymentMethod = v!),
+                ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ── Address Tile ──────────────────────────────────────────────────────────────
+
+class _AddressTile extends StatelessWidget {
+  final ShippingAddress address;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AddressTile({
+    required this.address,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: RadioListTile<bool>(
+        value: true,
+        groupValue: isSelected,
+        onChanged: (_) => onTap(),
+        activeColor: theme.colorScheme.primary,
+        title: Row(
+          children: [
+            Text(
+              address.name,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            if (address.isDefault) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Default',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            address.formattedAddress,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Payment Method Tile ───────────────────────────────────────────────────────
+
+class _PaymentMethodTile extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final PaymentMethod value;
+  final PaymentMethod groupValue;
+  final ValueChanged<PaymentMethod?> onChanged;
+
+  const _PaymentMethodTile({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isSelected = value == groupValue;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: RadioListTile<PaymentMethod>(
+        value: value,
+        groupValue: groupValue,
+        onChanged: onChanged,
+        activeColor: theme.colorScheme.primary,
+        title: Row(
+          children: [
+            Icon(icon, size: 20, color: theme.colorScheme.primary),
+            const SizedBox(width: 10),
+            Text(label),
+          ],
+        ),
       ),
     );
   }

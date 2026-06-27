@@ -78,9 +78,7 @@ class ProfileScreen extends ConsumerWidget {
             _ProfileMenuItem(
               icon: Icons.location_on_outlined,
               title: 'Saved Addresses',
-              onTap: () {
-                // Navigate to addresses
-              },
+              onTap: () => context.push(AppRoutes.savedAddresses),
             ),
             _ProfileMenuItem(
               icon: Icons.payment_outlined,

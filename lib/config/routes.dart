@@ -17,6 +17,8 @@ import '../screens/orders/order_list_screen.dart';
 import '../screens/orders/order_detail_screen.dart';
 import '../screens/orders/checkout_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/profile/saved_addresses_screen.dart';
+import '../screens/orders/payment_screen.dart';
 import '../screens/thank_you_screen.dart';
 
 /// Named route constants for type-safe navigation.
@@ -38,6 +40,8 @@ class AppRoutes {
   static const String orderDetail = '/orders/detail';
   static const String checkout = '/orders/checkout';
   static const String profile = '/profile';
+  static const String savedAddresses = '/profile/addresses';
+  static const String payment = '/orders/payment';
   static const String thankYou = '/thank-you';
 }
 
@@ -139,6 +143,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.profile,
         name: 'profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.savedAddresses,
+        name: 'savedAddresses',
+        builder: (context, state) => const SavedAddressesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.payment,
+        name: 'payment',
+        builder: (context, state) {
+          final orderId = state.uri.queryParameters['orderId'] ?? '';
+          final amount =
+              double.tryParse(state.uri.queryParameters['amount'] ?? '0') ??
+                  0.0;
+          return PaymentScreen(orderId: orderId, amount: amount);
+        },
       ),
       GoRoute(
         path: AppRoutes.thankYou,
