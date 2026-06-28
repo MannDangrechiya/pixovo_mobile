@@ -63,7 +63,6 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final state = ref.watch(userImageProvider);
 
     // Find the image by ID.
@@ -93,10 +92,10 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
               // Save edited image
               context.pop();
             },
-            child: Text(
+            child: const Text(
               'Done',
               style: TextStyle(
-                color: theme.colorScheme.primary,
+                color: Color(0xFFE94560),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -122,7 +121,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                         imageUrl: image.url,
                         fit: BoxFit.contain,
                         placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: CircularProgressIndicator(color: Color(0xFFE94560)),
                         ),
                         errorWidget: (context, url, error) => const Icon(
                           Icons.broken_image,
@@ -198,6 +197,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                           value: _brightness,
                           min: -1,
                           max: 1,
+                          activeColor: const Color(0xFFE94560),
                           onChanged: (v) => setState(() => _brightness = v),
                         ),
                       ),
@@ -227,6 +227,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                           value: _contrast,
                           min: -1,
                           max: 1,
+                          activeColor: const Color(0xFFE94560),
                           onChanged: (v) => setState(() => _contrast = v),
                         ),
                       ),
@@ -269,7 +270,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                                 borderRadius: BorderRadius.circular(10),
                                 border: isSelected
                                     ? Border.all(
-                                        color: theme.colorScheme.primary,
+                                        color: const Color(0xFFE94560),
                                         width: 2)
                                     : null,
                                 color: Colors.grey.shade800,
@@ -277,7 +278,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                               child: Icon(
                                 Icons.filter,
                                 color: isSelected
-                                    ? theme.colorScheme.primary
+                                    ? const Color(0xFFE94560)
                                     : Colors.white54,
                                 size: 20,
                               ),
@@ -287,7 +288,7 @@ class _ImageEditorScreenState extends ConsumerState<ImageEditorScreen> {
                               filter.name,
                               style: TextStyle(
                                 color: isSelected
-                                    ? theme.colorScheme.primary
+                                    ? const Color(0xFFE94560)
                                     : Colors.white54,
                                 fontSize: 11,
                               ),
@@ -334,7 +335,7 @@ class _EditorButton extends StatelessWidget {
             child: Icon(
               icon,
               color: isActive
-                  ? Theme.of(context).colorScheme.primary
+                  ? const Color(0xFFE94560)
                   : Colors.white70,
               size: 24,
             ),
@@ -344,7 +345,7 @@ class _EditorButton extends StatelessWidget {
             label,
             style: TextStyle(
               color: isActive
-                  ? Theme.of(context).colorScheme.primary
+                  ? const Color(0xFFE94560)
                   : Colors.white54,
               fontSize: 11,
             ),

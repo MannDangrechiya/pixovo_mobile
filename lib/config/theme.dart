@@ -1,124 +1,147 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+class PixovoColors {
+  static const primary       = Color(0xFF1A1A2E);  // Deep navy (hero bg)
+  static const accent        = Color(0xFFE94560);  // Coral/red CTA buttons
+  static const accentOrange  = Color(0xFFFF6B35);  // Orange accent
+  static const background    = Color(0xFFF7F7F7);  // Off-white page bg
+  static const white         = Color(0xFFFFFFFF);
+  static const textDark      = Color(0xFF1A1A2E);
+  static const textGrey      = Color(0xFF6B7280);
+  static const textLight     = Color(0xFF9CA3AF);
+  static const border        = Color(0xFFE5E7EB);
+  static const cardBg        = Color(0xFFFFFFFF);
+  static const starYellow    = Color(0xFFFBBF24);
+  static const successGreen  = Color(0xFF10B981);
+  static const errorRed      = Color(0xFFEF4444);
+}
+
+class PixovoTypography {
+  static const fontFamily    = 'Inter';  // or system default
+  static const headlineXL    = TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: PixovoColors.white);
+  static const headlineLG    = TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: PixovoColors.textDark);
+  static const headlineMD    = TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: PixovoColors.textDark);
+  static const bodyLG        = TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: PixovoColors.textDark);
+  static const bodyMD        = TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: PixovoColors.textGrey);
+  static const bodySM        = TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: PixovoColors.textLight);
+  static const buttonText    = TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: PixovoColors.white);
+  static const labelText     = TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: PixovoColors.textDark);
+}
+
+class PixovoSpacing {
+  static const xs   = 4.0;
+  static const sm   = 8.0;
+  static const md   = 16.0;
+  static const lg   = 24.0;
+  static const xl   = 32.0;
+  static const xxl  = 48.0;
+}
+
+class PixovoRadius {
+  static const sm  = BorderRadius.all(Radius.circular(8));
+  static const md  = BorderRadius.all(Radius.circular(12));
+  static const lg  = BorderRadius.all(Radius.circular(16));
+  static const xl  = BorderRadius.all(Radius.circular(24));
+  static const full = BorderRadius.all(Radius.circular(999));
+}
+
 /// App-wide theming for Pixovo Mobile.
 class AppTheme {
   AppTheme._();
-
-  static const Color _primaryLight = Color(0xFF6C63FF);
-  static const Color _primaryDark = Color(0xFF8B83FF);
-  static const Color _secondary = Color(0xFFFF6584);
-  static const Color _surfaceLight = Color(0xFFF8F9FE);
-  static const Color _surfaceDark = Color(0xFF1A1A2E);
-  static const Color _backgroundDark = Color(0xFF0F0F23);
-  static const Color _cardDark = Color(0xFF232340);
-  static const Color _success = Color(0xFF2ED573);
-  static const Color _warning = Color(0xFFFFBE21);
-  static const Color _error = Color(0xFFFF4757);
-  static const Color _info = Color(0xFF45AAF2);
 
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
-        primary: _primaryLight,
-        onPrimary: Colors.white,
-        secondary: _secondary,
-        onSecondary: Colors.white,
-        surface: _surfaceLight,
-        onSurface: Color(0xFF2D3142),
-        error: _error,
-        onError: Colors.white,
+        primary: PixovoColors.primary,
+        onPrimary: PixovoColors.white,
+        secondary: PixovoColors.accent,
+        onSecondary: PixovoColors.white,
+        surface: PixovoColors.background,
+        onSurface: PixovoColors.textDark,
+        error: PixovoColors.errorRed,
+        onError: PixovoColors.white,
       ),
-      scaffoldBackgroundColor: _surfaceLight,
+      scaffoldBackgroundColor: PixovoColors.background,
       textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF2D3142),
+        backgroundColor: PixovoColors.white,
+        foregroundColor: PixovoColors.textDark,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF2D3142),
+          color: PixovoColors.textDark,
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 2,
         shadowColor: Colors.black.withValues(alpha: 0.08),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: Colors.white,
+        shape: const RoundedRectangleBorder(borderRadius: PixovoRadius.md),
+        color: PixovoColors.cardBg,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _primaryLight,
-          foregroundColor: Colors.white,
+          backgroundColor: PixovoColors.accent,           // coral-red
+          foregroundColor: PixovoColors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: PixovoTypography.buttonText,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: _primaryLight,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          side: const BorderSide(color: _primaryLight, width: 1.5),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          foregroundColor: PixovoColors.primary,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: const BorderSide(color: PixovoColors.primary, width: 1.5),
+          textStyle: PixovoTypography.buttonText.copyWith(color: PixovoColors.primary),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        fillColor: PixovoColors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: _primaryLight, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: _error, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.errorRed, width: 1.5),
         ),
         hintStyle: GoogleFonts.inter(
-          color: Colors.grey.shade400,
+          color: PixovoColors.textLight,
           fontSize: 14,
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: Colors.white,
-        selectedItemColor: _primaryLight,
-        unselectedItemColor: Color(0xFFBDBDBD),
+        backgroundColor: PixovoColors.white,
+        selectedItemColor: PixovoColors.primary,
+        unselectedItemColor: PixovoColors.textLight,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: _primaryLight.withValues(alpha: 0.1),
-        selectedColor: _primaryLight,
-        labelStyle:
-            GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+        backgroundColor: PixovoColors.border,
+        selectedColor: PixovoColors.primary,
+        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: PixovoColors.textDark),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      dividerTheme: DividerThemeData(
-        color: Colors.grey.shade200,
+      dividerTheme: const DividerThemeData(
+        color: PixovoColors.border,
         thickness: 1,
       ),
     );
@@ -129,110 +152,100 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: const ColorScheme.dark(
-        primary: _primaryDark,
-        onPrimary: Colors.white,
-        secondary: _secondary,
-        onSecondary: Colors.white,
-        surface: _surfaceDark,
-        onSurface: Color(0xFFE8E8F0),
-        error: _error,
-        onError: Colors.white,
+        primary: PixovoColors.primary,
+        onPrimary: PixovoColors.white,
+        secondary: PixovoColors.accent,
+        onSecondary: PixovoColors.white,
+        surface: PixovoColors.primary, // using primary deep navy as surface in dark mode
+        onSurface: PixovoColors.white,
+        error: PixovoColors.errorRed,
+        onError: PixovoColors.white,
       ),
-      scaffoldBackgroundColor: _backgroundDark,
+      scaffoldBackgroundColor: const Color(0xFF0F0F1A), // darker navy
       textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
       appBarTheme: AppBarTheme(
-        backgroundColor: _surfaceDark,
-        foregroundColor: const Color(0xFFE8E8F0),
+        backgroundColor: PixovoColors.primary,
+        foregroundColor: PixovoColors.white,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: GoogleFonts.inter(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFFE8E8F0),
+          color: PixovoColors.white,
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 4,
         shadowColor: Colors.black.withValues(alpha: 0.3),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        color: _cardDark,
+        shape: const RoundedRectangleBorder(borderRadius: PixovoRadius.md),
+        color: PixovoColors.primary,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: _primaryDark,
-          foregroundColor: Colors.white,
+          backgroundColor: PixovoColors.accent,
+          foregroundColor: PixovoColors.white,
           elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: PixovoTypography.buttonText,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: _primaryDark,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          side: const BorderSide(color: _primaryDark, width: 1.5),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
+          foregroundColor: PixovoColors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: const BorderSide(color: PixovoColors.white, width: 1.5),
+          textStyle: PixovoTypography.buttonText,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: _cardDark,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        fillColor: PixovoColors.primary,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade800),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.textGrey),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: Colors.grey.shade800),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.textGrey),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: _primaryDark, width: 2),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.white, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: _error, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: PixovoColors.errorRed, width: 1.5),
         ),
         hintStyle: GoogleFonts.inter(
-          color: Colors.grey.shade600,
+          color: PixovoColors.textLight,
           fontSize: 14,
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: _surfaceDark,
-        selectedItemColor: _primaryDark,
-        unselectedItemColor: Color(0xFF6B6B80),
+        backgroundColor: PixovoColors.primary,
+        selectedItemColor: PixovoColors.white,
+        unselectedItemColor: PixovoColors.textGrey,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: _primaryDark.withValues(alpha: 0.15),
-        selectedColor: _primaryDark,
-        labelStyle:
-            GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500),
+        backgroundColor: PixovoColors.textDark,
+        selectedColor: PixovoColors.accent,
+        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500, color: PixovoColors.white),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-      dividerTheme: DividerThemeData(
-        color: Colors.grey.shade800,
+      dividerTheme: const DividerThemeData(
+        color: PixovoColors.textGrey,
         thickness: 1,
       ),
     );
   }
 
-  static Color get success => _success;
-  static Color get warning => _warning;
-  static Color get error => _error;
-  static Color get info => _info;
+  static Color get success => PixovoColors.successGreen;
+  static Color get warning => PixovoColors.starYellow;
+  static Color get error => PixovoColors.errorRed;
+  static Color get info => const Color(0xFF45AAF2);
 }

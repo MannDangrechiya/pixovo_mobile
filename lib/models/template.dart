@@ -6,11 +6,14 @@ class Template {
   final String thumbnailUrl;
   final List<String> previewImages;
   final String category;
-  final int pageCount;
-  final double price;
+  final int minPage;
+  final int maxPage;
+  final double basePrice;
+  final double perPagePrice;
   final String? currency;
-  final List<String>? availableSizes;
-  final List<String>? availableCovers;
+  final List<String> sizes;
+  final List<String> coverTypes;
+  final List<String> paperQualities;
 
   const Template({
     required this.id,
@@ -19,11 +22,14 @@ class Template {
     required this.thumbnailUrl,
     this.previewImages = const [],
     required this.category,
-    required this.pageCount,
-    required this.price,
-    this.currency = 'INR',
-    this.availableSizes,
-    this.availableCovers,
+    required this.minPage,
+    required this.maxPage,
+    required this.basePrice,
+    required this.perPagePrice,
+    this.currency = 'USD',
+    this.sizes = const [],
+    this.coverTypes = const [],
+    this.paperQualities = const [],
   });
 
   factory Template.fromJson(Map<String, dynamic> json) {
@@ -37,15 +43,26 @@ class Template {
               .toList() ??
           [],
       category: json['category'] as String,
-      pageCount: json['page_count'] as int,
-      price: (json['price'] as num).toDouble(),
-      currency: json['currency'] as String? ?? 'INR',
-      availableSizes: (json['available_sizes'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
-      availableCovers: (json['available_covers'] as List<dynamic>?)
-          ?.map((e) => e as String)
-          .toList(),
+      minPage: json['min_page'] as int? ?? json['page_count'] as int? ?? 10,
+      maxPage: json['max_page'] as int? ?? 100,
+      basePrice: (json['base_price'] as num?)?.toDouble() ?? (json['price'] as num?)?.toDouble() ?? 0.0,
+      perPagePrice: (json['per_page_price'] as num?)?.toDouble() ?? 0.0,
+      currency: json['currency'] as String? ?? 'USD',
+      sizes: (json['sizes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          (json['available_sizes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ?? [],
+      coverTypes: (json['cover_types'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          (json['available_covers'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ?? [],
+      paperQualities: (json['paper_qualities'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ?? [],
     );
   }
 
@@ -57,11 +74,14 @@ class Template {
       'thumbnail_url': thumbnailUrl,
       'preview_images': previewImages,
       'category': category,
-      'page_count': pageCount,
-      'price': price,
+      'min_page': minPage,
+      'max_page': maxPage,
+      'base_price': basePrice,
+      'per_page_price': perPagePrice,
       'currency': currency,
-      'available_sizes': availableSizes,
-      'available_covers': availableCovers,
+      'sizes': sizes,
+      'cover_types': coverTypes,
+      'paper_qualities': paperQualities,
     };
   }
 
@@ -72,11 +92,14 @@ class Template {
     String? thumbnailUrl,
     List<String>? previewImages,
     String? category,
-    int? pageCount,
-    double? price,
+    int? minPage,
+    int? maxPage,
+    double? basePrice,
+    double? perPagePrice,
     String? currency,
-    List<String>? availableSizes,
-    List<String>? availableCovers,
+    List<String>? sizes,
+    List<String>? coverTypes,
+    List<String>? paperQualities,
   }) {
     return Template(
       id: id ?? this.id,
@@ -85,11 +108,14 @@ class Template {
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       previewImages: previewImages ?? this.previewImages,
       category: category ?? this.category,
-      pageCount: pageCount ?? this.pageCount,
-      price: price ?? this.price,
+      minPage: minPage ?? this.minPage,
+      maxPage: maxPage ?? this.maxPage,
+      basePrice: basePrice ?? this.basePrice,
+      perPagePrice: perPagePrice ?? this.perPagePrice,
       currency: currency ?? this.currency,
-      availableSizes: availableSizes ?? this.availableSizes,
-      availableCovers: availableCovers ?? this.availableCovers,
+      sizes: sizes ?? this.sizes,
+      coverTypes: coverTypes ?? this.coverTypes,
+      paperQualities: paperQualities ?? this.paperQualities,
     );
   }
 }

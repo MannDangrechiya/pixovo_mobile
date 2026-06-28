@@ -225,6 +225,76 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  /// Social Login
+  Future<void> socialLogin({required String provider}) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final user = await _authService.socialLogin(provider: provider);
+      state = state.copyWith(
+        user: user,
+        isLoading: false,
+        isAuthenticated: true,
+      );
+    } catch (e) {
+      String errorMessage = 'Social login failed. Please try again.';
+      
+      if (e is DioException) {
+        debugPrint('Social Login DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+        if (e.response?.data != null) {
+          final data = e.response!.data;
+          if (data is Map<String, dynamic>) {
+            errorMessage = _extractErrorMessage(data);
+          } else {
+            errorMessage = data.toString();
+          }
+        }
+      } else {
+        debugPrint('Social Login error: $e');
+        errorMessage = e.toString();
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+
+  /// Facebook Login
+  Future<void> facebookLogin() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final user = await _authService.facebookLogin();
+      state = state.copyWith(
+        user: user,
+        isLoading: false,
+        isAuthenticated: true,
+      );
+    } catch (e) {
+      String errorMessage = 'Facebook login failed. Please try again.';
+      
+      if (e is DioException) {
+        debugPrint('Facebook Login DioException: status=${e.response?.statusCode}, data=${e.response?.data}');
+        if (e.response?.data != null) {
+          final data = e.response!.data;
+          if (data is Map<String, dynamic>) {
+            errorMessage = _extractErrorMessage(data);
+          } else {
+            errorMessage = data.toString();
+          }
+        }
+      } else {
+        debugPrint('Facebook Login error: $e');
+        errorMessage = e.toString();
+      }
+
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: errorMessage,
+      );
+    }
+  }
+
   /// Clear any displayed error message.
   void clearError() {
     state = state.copyWith(errorMessage: null);

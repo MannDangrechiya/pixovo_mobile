@@ -16,8 +16,12 @@ class ProfileScreen extends ConsumerWidget {
     final user = authState.user;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Profile'),
+        backgroundColor: const Color(0xFF1A1A2E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Profile', style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -32,15 +36,14 @@ class ProfileScreen extends ConsumerWidget {
             // Avatar
             CircleAvatar(
               radius: 50,
-              backgroundColor:
-                  theme.colorScheme.primary.withValues(alpha: 0.1),
+              backgroundColor: const Color(0xFFE94560).withValues(alpha: 0.1),
               backgroundImage:
                   user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
               child: user?.avatarUrl == null
-                  ? Icon(
+                  ? const Icon(
                       Icons.person,
                       size: 50,
-                      color: theme.colorScheme.primary,
+                      color: Color(0xFFE94560),
                     )
                   : null,
             ),
@@ -50,14 +53,15 @@ class ProfileScreen extends ConsumerWidget {
             Text(
               user?.name ?? 'User',
               style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1A1A2E),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               user?.email ?? '',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                color: Colors.grey.shade600,
               ),
             ),
             const SizedBox(height: 32),
@@ -66,9 +70,7 @@ class ProfileScreen extends ConsumerWidget {
             _ProfileMenuItem(
               icon: Icons.person_outline,
               title: 'Edit Profile',
-              onTap: () {
-                // Navigate to edit profile
-              },
+              onTap: () => context.push(AppRoutes.editProfile),
             ),
             _ProfileMenuItem(
               icon: Icons.receipt_long_outlined,
@@ -78,21 +80,22 @@ class ProfileScreen extends ConsumerWidget {
             _ProfileMenuItem(
               icon: Icons.location_on_outlined,
               title: 'Saved Addresses',
-              onTap: () => context.push(AppRoutes.savedAddresses),
+              onTap: () => context.push(AppRoutes.addressBook),
             ),
             _ProfileMenuItem(
               icon: Icons.payment_outlined,
               title: 'Payment Methods',
-              onTap: () {
-                // Navigate to payment methods
-              },
+              onTap: () => context.push(AppRoutes.paymentMethods),
+            ),
+            _ProfileMenuItem(
+              icon: Icons.settings_outlined,
+              title: 'Settings',
+              onTap: () => context.push(AppRoutes.settings),
             ),
             _ProfileMenuItem(
               icon: Icons.help_outline,
               title: 'Help & Support',
-              onTap: () {
-                // Navigate to help
-              },
+              onTap: () => context.push(AppRoutes.helpSupport),
             ),
             _ProfileMenuItem(
               icon: Icons.info_outline,
@@ -106,6 +109,7 @@ class ProfileScreen extends ConsumerWidget {
             // Logout button
             SizedBox(
               width: double.infinity,
+              height: 56,
               child: OutlinedButton.icon(
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
@@ -121,9 +125,9 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(
+                          child: const Text(
                             'Logout',
-                            style: TextStyle(color: theme.colorScheme.error),
+                            style: TextStyle(color: Color(0xFFEF4444)),
                           ),
                         ),
                       ],
@@ -137,14 +141,16 @@ class ProfileScreen extends ConsumerWidget {
                     }
                   }
                 },
-                icon: Icon(Icons.logout, color: theme.colorScheme.error),
-                label: Text(
+                icon: const Icon(Icons.logout, color: Color(0xFFEF4444)),
+                label: const Text(
                   'Logout',
-                  style: TextStyle(color: theme.colorScheme.error),
+                  style: TextStyle(color: Color(0xFFEF4444), fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: theme.colorScheme.error),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(color: Color(0xFFEF4444), width: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
@@ -169,16 +175,33 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ListTile(
-        leading: Icon(icon, color: theme.colorScheme.primary),
-        title: Text(title),
-        trailing: Icon(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE94560).withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: const Color(0xFFE94560)),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E))),
+        trailing: const Icon(
           Icons.chevron_right,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+          color: Colors.grey,
         ),
         onTap: onTap,
         shape: RoundedRectangleBorder(
