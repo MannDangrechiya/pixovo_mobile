@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 
 import '../../models/order.dart';
 import '../../providers/order_provider.dart';
-import '../../config/theme.dart';
 
 /// Order detail screen showing full order information.
 class OrderDetailScreen extends ConsumerStatefulWidget {
@@ -29,17 +28,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   Color _statusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
-        return AppTheme.warning;
+        return const Color(0xFFFBBF24); // warning
       case OrderStatus.confirmed:
-        return AppTheme.info;
+        return const Color(0xFF3B82F6); // info
       case OrderStatus.processing:
-        return AppTheme.info;
+        return const Color(0xFF3B82F6); // info
       case OrderStatus.shipped:
         return const Color(0xFF5B86E5);
       case OrderStatus.delivered:
-        return AppTheme.success;
+        return const Color(0xFF10B981); // success
       case OrderStatus.cancelled:
-        return AppTheme.error;
+        return const Color(0xFFEF4444); // error
+      case OrderStatus.cart:
+        return const Color(0xFF9CA3AF); // grey
     }
   }
 
@@ -50,15 +51,19 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
     final order = state.currentOrder;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: Text('Order #${widget.orderId.substring(0, 8)}'),
+        backgroundColor: const Color(0xFF1A1A2E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: Text('Order #${widget.orderId.substring(0, 8)}', style: const TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
       ),
       body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFE94560)))
           : order == null
               ? const Center(child: Text('Order not found'))
               : SingleChildScrollView(
@@ -67,7 +72,18 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Status card
-                      Card(
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Row(
@@ -86,7 +102,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                                   order.status.name.toUpperCase(),
                                   style: TextStyle(
                                     color: _statusColor(order.status),
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -95,47 +111,61 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                               Text(
                                 DateFormat('MMM dd, yyyy').format(order.createdAt),
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.5),
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
 
                       // Order items
                       Text(
                         'Items',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF1A1A2E),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...order.items.map((item) => Card(
+                      ...order.items.map((item) => Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
                             child: ListTile(
+                              contentPadding: const EdgeInsets.all(12),
                               leading: Container(
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.1),
+                                  color: const Color(0xFFE94560).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.menu_book,
-                                  color: theme.colorScheme.primary,
+                                  color: Color(0xFFE94560),
                                 ),
                               ),
-                              title: Text(item.templateName),
+                              title: Text(item.templateName, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1A1A2E))),
                               subtitle: Text(
                                 'Qty: ${item.quantity} • ${item.imageIds.length} photos',
+                                style: TextStyle(color: Colors.grey.shade600),
                               ),
                               trailing: Text(
                                 '₹${item.totalPrice.toStringAsFixed(2)}',
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFE94560),
                                 ),
                               ),
                             ),
@@ -147,47 +177,71 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                         Text(
                           'Shipping Address',
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A1A2E),
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Card(
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   order.shippingAddress!.name,
                                   style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF1A1A2E),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 8),
                                 Text(
                                   order.shippingAddress!.formattedAddress,
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurface
-                                        .withValues(alpha: 0.7),
+                                    color: Colors.grey.shade600,
                                     height: 1.5,
                                   ),
                                 ),
                                 if (order.shippingAddress!.phone != null) ...[
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
                                   Text(
                                     'Phone: ${order.shippingAddress!.phone}',
-                                    style: theme.textTheme.bodyMedium,
+                                    style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.w500),
                                   ),
                                 ],
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 24),
                       ],
 
                       // Order total
-                      Card(
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
                           child: Row(
@@ -196,27 +250,29 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                               Text(
                                 'Total Amount',
                                 style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF1A1A2E),
                                 ),
                               ),
                               Text(
                                 '₹${order.totalAmount.toStringAsFixed(2)}',
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: theme.colorScheme.primary,
+                                  color: const Color(0xFFE94560),
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 32),
 
                       // Cancel button (if applicable)
                       if (order.status == OrderStatus.pending ||
                           order.status == OrderStatus.confirmed)
                         SizedBox(
                           width: double.infinity,
+                          height: 56,
                           child: OutlinedButton(
                             onPressed: () {
                               showDialog(
@@ -238,10 +294,10 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                                             .read(orderProvider.notifier)
                                             .cancelOrder(order.id);
                                       },
-                                      child: Text(
+                                      child: const Text(
                                         'Cancel Order',
                                         style: TextStyle(
-                                          color: theme.colorScheme.error,
+                                          color: Color(0xFFEF4444),
                                         ),
                                       ),
                                     ),
@@ -250,10 +306,13 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                               );
                             },
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: theme.colorScheme.error,
-                              side: BorderSide(color: theme.colorScheme.error),
+                              foregroundColor: const Color(0xFFEF4444),
+                              side: const BorderSide(color: Color(0xFFEF4444), width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                            child: const Text('Cancel Order'),
+                            child: const Text('Cancel Order', style: TextStyle(fontWeight: FontWeight.w600)),
                           ),
                         ),
                     ],

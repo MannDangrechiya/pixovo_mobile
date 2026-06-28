@@ -15,8 +15,12 @@ class CartScreen extends ConsumerWidget {
     final state = ref.watch(orderProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Your Cart'),
+        backgroundColor: const Color(0xFF1A1A2E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Your Cart', style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -27,7 +31,13 @@ class CartScreen extends ConsumerWidget {
               onPressed: () {
                 ref.read(orderProvider.notifier).clearCart();
               },
-              child: const Text('Clear'),
+              child: const Text(
+                'Clear',
+                style: TextStyle(
+                  color: Color(0xFFE94560),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
         ],
       ),
@@ -36,29 +46,48 @@ class CartScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.shopping_cart_outlined,
-                    size: 80,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      size: 64,
+                      color: Colors.grey.shade400,
+                    ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
                   Text(
                     'Your cart is empty',
                     style: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: const Color(0xFF1A1A2E),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Start by choosing a template',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                      color: Colors.grey.shade600,
                     ),
                   ),
                   const SizedBox(height: 32),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE94560),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                     onPressed: () => context.go(AppRoutes.home),
-                    child: const Text('Browse Templates'),
+                    child: const Text(
+                      'Browse Templates',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ],
               ),
@@ -69,7 +98,18 @@ class CartScreen extends ConsumerWidget {
               separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final item = state.cartItems[index];
-                return Card(
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Row(
@@ -80,13 +120,12 @@ class CartScreen extends ConsumerWidget {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.1),
+                            color: const Color(0xFFE94560).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.menu_book,
-                            color: theme.colorScheme.primary,
+                            color: Color(0xFFE94560),
                             size: 28,
                           ),
                         ),
@@ -99,16 +138,16 @@ class CartScreen extends ConsumerWidget {
                             children: [
                               Text(
                                 item.templateName,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.w600,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF1A1A2E),
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 '${item.imageIds.length} photos',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface
-                                      .withValues(alpha: 0.6),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.grey.shade600,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -116,7 +155,7 @@ class CartScreen extends ConsumerWidget {
                                 '₹${item.totalPrice.toStringAsFixed(2)}',
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: theme.colorScheme.primary,
+                                  color: const Color(0xFFE94560),
                                 ),
                               ),
                             ],
@@ -125,9 +164,9 @@ class CartScreen extends ConsumerWidget {
 
                         // Remove button
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.delete_outline,
-                            color: theme.colorScheme.error,
+                            color: Colors.redAccent,
                           ),
                           onPressed: () {
                             ref
@@ -141,16 +180,16 @@ class CartScreen extends ConsumerWidget {
                 );
               },
             ),
-      bottomSheet: state.cartItems.isNotEmpty
+      bottomNavigationBar: state.cartItems.isNotEmpty
           ? Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
               decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
+                color: Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: const Offset(0, -2),
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
@@ -163,13 +202,15 @@ class CartScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Total',
-                          style: theme.textTheme.titleMedium,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                         Text(
                           '₹${state.cartTotal.toStringAsFixed(2)}',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: theme.colorScheme.primary,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A1A2E),
                           ),
                         ),
                       ],
@@ -179,8 +220,22 @@ class CartScreen extends ConsumerWidget {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE94560),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
                         onPressed: () => context.push(AppRoutes.checkout),
-                        child: const Text('Proceed to Checkout'),
+                        child: const Text(
+                          'Proceed to Checkout',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ],

@@ -45,9 +45,12 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
         .toList();
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('Book Preview'),
+        backgroundColor: const Color(0xFF1A1A2E), // Navy primary
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('Book Preview', style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -66,11 +69,12 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
         children: [
           // Page indicator
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 24),
             child: Text(
               'Page ${_currentPage + 1} of ${selectedImages.isEmpty ? 1 : selectedImages.length}',
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: const Color(0xFF1A1A2E),
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -82,26 +86,31 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.menu_book_outlined,
-                          size: 64,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.3),
+                        Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.menu_book_outlined,
+                            size: 64,
+                            color: Colors.grey.shade400,
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 24),
                         Text(
                           'No pages to preview',
                           style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.5),
+                            color: const Color(0xFF1A1A2E),
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Go back and select photos for your book',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.4),
+                            color: Colors.grey.shade600,
                           ),
                         ),
                       ],
@@ -116,25 +125,24 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
                     itemBuilder: (context, index) {
                       final image = selectedImages[index];
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: Center(
                           child: AspectRatio(
                             aspectRatio: 3 / 4,
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        Colors.black.withValues(alpha: 0.15),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 20,
-                                    offset: const Offset(0, 8),
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Stack(
                                   fit: StackFit.expand,
                                   children: [
@@ -143,35 +151,32 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) =>
                                           const Center(
-                                        child: CircularProgressIndicator(),
+                                        child: CircularProgressIndicator(color: Color(0xFFE94560)),
                                       ),
                                       errorWidget: (context, url, error) =>
                                           const Center(
-                                        child: Icon(Icons.broken_image,
-                                            size: 48),
+                                        child: Icon(Icons.broken_image, size: 48, color: Colors.grey),
                                       ),
                                     ),
                                     // Page number overlay
                                     Positioned(
-                                      bottom: 12,
-                                      right: 12,
+                                      bottom: 16,
+                                      right: 16,
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
+                                          horizontal: 12,
+                                          vertical: 6,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Colors.black
-                                              .withValues(alpha: 0.5),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          color: Colors.black.withValues(alpha: 0.6),
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
                                           '${index + 1}',
                                           style: const TextStyle(
                                             color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -190,21 +195,21 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
           // Page dots
           if (selectedImages.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(
                   selectedImages.length,
                   (index) => AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: _currentPage == index ? 24 : 8,
                     height: 8,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
                       color: _currentPage == index
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withValues(alpha: 0.2),
+                          ? const Color(0xFFE94560)
+                          : const Color(0xFFE94560).withValues(alpha: 0.2),
                     ),
                   ),
                 ),
@@ -212,16 +217,16 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
             ),
         ],
       ),
-      bottomSheet: selectedImages.isNotEmpty
+      bottomNavigationBar: selectedImages.isNotEmpty
           ? Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
               decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
+                color: Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: const Offset(0, -2),
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
@@ -230,6 +235,14 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE94560),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
                     onPressed: () {
                       // Add to cart and proceed.
                       ref.read(orderProvider.notifier).addToCart(
@@ -245,7 +258,13 @@ class _BookPreviewScreenState extends ConsumerState<BookPreviewScreen> {
                           );
                       context.push(AppRoutes.cart);
                     },
-                    child: const Text('Add to Cart'),
+                    child: const Text(
+                      'Add to Cart',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
               ),

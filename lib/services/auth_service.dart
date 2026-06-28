@@ -1,5 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 import '../config/api_config.dart';
 import '../models/user.dart';
@@ -158,5 +160,75 @@ class AuthService {
       await _storage.write(
           key: 'refresh_token', value: data['refresh_token'] as String);
     }
+  }
+  /// Social login (Google, etc.)
+  Future<User> socialLogin({required String provider}) async {
+    String? token;
+    
+    if (provider == 'google') {
+      try {
+        final GoogleSignIn googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+        final GoogleSignInAccount? account = await googleSignIn.signIn();
+        if (account != null) {
+          final GoogleSignInAuthentication auth = await account.authentication;
+          token = auth.accessToken ?? auth.idToken;
+        }
+      } catch (e) {
+        developer.log('Google sign in error: $e', name: 'AuthService');
+        throw Exception('Google sign in failed');
+      }
+    }
+
+    if (token == null) {
+      throw Exception('Failed to get $provider token');
+    }
+
+    final response = await _api.post(
+      ApiConfig.socialLogin,
+      data: {
+        'provider': provider,
+        'token': token,
+      },
+    );
+
+    final data = _unwrapResponse(response.data);
+    await _storeTokens(data);
+
+    final userJson = data['user'] as Map<String, dynamic>? ?? data;
+    return User.fromJson(userJson);
+  }
+
+  /// Facebook login
+  Future<User> facebookLogin() async {
+    String? token;
+    
+    try {
+      final LoginResult result = await FacebookAuth.instance.login(permissions: ['public_profile', 'email']);
+      if (result.status == LoginStatus.success) {
+        token = result.accessToken?.tokenString;
+      } else {
+        throw Exception('Facebook login cancelled or failed');
+      }
+    } catch (e) {
+      developer.log('Facebook sign in error: $e', name: 'AuthService');
+      throw Exception('Facebook sign in failed');
+    }
+
+    if (token == null) {
+      throw Exception('Failed to get Facebook token');
+    }
+
+    final response = await _api.post(
+      ApiConfig.facebookLogin,
+      data: {
+        'token': token,
+      },
+    );
+
+    final data = _unwrapResponse(response.data);
+    await _storeTokens(data);
+
+    final userJson = data['user'] as Map<String, dynamic>? ?? data;
+    return User.fromJson(userJson);
   }
 }

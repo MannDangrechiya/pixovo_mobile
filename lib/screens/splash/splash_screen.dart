@@ -132,21 +132,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                'Create beautiful photo books',
-                style: theme.textTheme.bodyLarge?.copyWith(
+                'AI-POWERED PHOTOBOOKS',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: const Color(0xFFE94560),
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Turn Your Memories Into Beautiful Stories',
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withValues(alpha: 0.85),
                   letterSpacing: 0.5,
                 ),
               ),
               const SizedBox(height: 48),
               // Loading indicator
-              SizedBox(
+              const SizedBox(
                 width: 28,
                 height: 28,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.white.withValues(alpha: 0.9),
+                    Color(0xFFE94560),
                   ),
                 ),
               ),

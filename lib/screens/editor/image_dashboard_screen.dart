@@ -32,8 +32,12 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
     final state = ref.watch(userImageProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Your Photos'),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1A1A2E),
+        elevation: 0,
+        title: const Text('Your Photos', style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -52,46 +56,66 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                 state.selectedImageIds.length == state.images.length
                     ? 'Deselect All'
                     : 'Select All',
+                style: const TextStyle(
+                  color: Color(0xFFE94560),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
         ],
       ),
       body: state.isLoading && state.images.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFE94560)))
           : state.images.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.photo_library_outlined,
-                        size: 64,
-                        color: theme.colorScheme.onSurface
-                            .withValues(alpha: 0.3),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.photo_library_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       Text(
                         'No photos uploaded yet',
                         style: theme.textTheme.titleMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
+                          color: const Color(0xFF1A1A2E),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE94560),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
                         onPressed: () => context.push(
                           '${AppRoutes.imageUpload}?templateId=${widget.templateId}',
                         ),
                         icon: const Icon(Icons.add_photo_alternate),
-                        label: const Text('Upload Photos'),
+                        label: const Text(
+                          'Upload Photos',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
                 )
               : GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     mainAxisSpacing: 8,
                     crossAxisSpacing: 8,
@@ -99,14 +123,11 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                   itemCount: state.images.length,
                   itemBuilder: (context, index) {
                     final image = state.images[index];
-                    final isSelected =
-                        state.selectedImageIds.contains(image.id);
+                    final isSelected = state.selectedImageIds.contains(image.id);
 
                     return GestureDetector(
                       onTap: () {
-                        ref
-                            .read(userImageProvider.notifier)
-                            .toggleSelection(image.id);
+                        ref.read(userImageProvider.notifier).toggleSelection(image.id);
                       },
                       onLongPress: () {
                         context.push(
@@ -122,16 +143,17 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                               imageUrl: image.thumbnailUrl ?? image.url,
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
-                                color: theme.colorScheme.surfaceContainerHighest,
+                                color: Colors.grey.shade200,
                                 child: const Center(
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
+                                    color: Color(0xFFE94560),
                                   ),
                                 ),
                               ),
                               errorWidget: (context, url, error) => Container(
-                                color: theme.colorScheme.surfaceContainerHighest,
-                                child: const Icon(Icons.broken_image),
+                                color: Colors.grey.shade200,
+                                child: const Icon(Icons.broken_image, color: Colors.grey),
                               ),
                             ),
                           ),
@@ -140,25 +162,24 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: theme.colorScheme.primary
-                                    .withValues(alpha: 0.3),
+                                color: const Color(0xFFE94560).withValues(alpha: 0.2),
                                 border: Border.all(
-                                  color: theme.colorScheme.primary,
+                                  color: const Color(0xFFE94560),
                                   width: 3,
                                 ),
                               ),
                             ),
                           // Selection checkmark
                           Positioned(
-                            top: 6,
-                            right: 6,
+                            top: 8,
+                            right: 8,
                             child: Container(
                               width: 24,
                               height: 24,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: isSelected
-                                    ? theme.colorScheme.primary
+                                    ? const Color(0xFFE94560)
                                     : Colors.black.withValues(alpha: 0.3),
                                 border: Border.all(
                                   color: Colors.white,
@@ -168,7 +189,7 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                               child: isSelected
                                   ? const Icon(
                                       Icons.check,
-                                      size: 14,
+                                      size: 16,
                                       color: Colors.white,
                                     )
                                   : null,
@@ -179,16 +200,16 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                     );
                   },
                 ),
-      bottomSheet: state.selectedImageIds.isNotEmpty
+      bottomNavigationBar: state.selectedImageIds.isNotEmpty
           ? Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
               decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
+                color: Colors.white,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: const Offset(0, -2),
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
@@ -196,18 +217,53 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        '${state.selectedImageIds.length} photo${state.selectedImageIds.length > 1 ? 's' : ''} selected',
-                        style: theme.textTheme.titleSmall,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selected',
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            '${state.selectedImageIds.length} photo${state.selectedImageIds.length > 1 ? 's' : ''}',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1A1A2E),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.push(
-                          '${AppRoutes.bookPreview}?templateId=${widget.templateId}',
-                        );
-                      },
-                      child: const Text('Continue'),
+                    Expanded(
+                      child: SizedBox(
+                        height: 56,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFE94560),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            context.push(
+                              '${AppRoutes.bookPreview}?templateId=${widget.templateId}',
+                            );
+                          },
+                          child: const Text(
+                            'Add to Project',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -215,6 +271,8 @@ class _ImageDashboardScreenState extends ConsumerState<ImageDashboardScreen> {
             )
           : null,
       floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFE94560),
+        foregroundColor: Colors.white,
         onPressed: () => context.push(
           '${AppRoutes.imageUpload}?templateId=${widget.templateId}',
         ),

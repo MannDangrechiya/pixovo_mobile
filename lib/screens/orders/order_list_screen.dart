@@ -44,51 +44,72 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
     final state = ref.watch(orderProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       appBar: AppBar(
-        title: const Text('My Orders'),
+        backgroundColor: const Color(0xFF1A1A2E),
+        foregroundColor: Colors.white,
+        elevation: 0,
+        title: const Text('My Orders', style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
       ),
       body: state.isLoading && state.orders.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFFE94560)))
           : state.orders.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.receipt_long_outlined,
-                        size: 80,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.2),
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.receipt_long_outlined,
+                          size: 64,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
                       Text(
                         'No orders yet',
                         style: theme.textTheme.titleLarge?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.5),
+                          color: const Color(0xFF1A1A2E),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Your order history will appear here',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.4),
+                          color: Colors.grey.shade600,
                         ),
                       ),
                       const SizedBox(height: 32),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE94560),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
                         onPressed: () => context.go(AppRoutes.home),
-                        child: const Text('Start Shopping'),
+                        child: const Text(
+                          'Start Shopping',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),
                 )
               : RefreshIndicator(
+                  color: const Color(0xFFE94560),
                   onRefresh: () =>
                       ref.read(orderProvider.notifier).loadOrders(),
                   child: ListView.separated(
@@ -102,7 +123,7 @@ class _OrderListScreenState extends ConsumerState<OrderListScreen> {
                         return const Center(
                           child: Padding(
                             padding: EdgeInsets.all(16),
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(color: Color(0xFFE94560)),
                           ),
                         );
                       }

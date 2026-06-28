@@ -56,6 +56,7 @@ class _ThankYouScreenState extends State<ThankYouScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(32),
@@ -73,18 +74,17 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                       height: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.secondary,
+                            Color(0xFFE94560),
+                            Color(0xFFFF6B35),
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.3),
+                            color: const Color(0xFFE94560).withValues(alpha: 0.3),
                             blurRadius: 30,
                             offset: const Offset(0, 10),
                           ),
@@ -108,6 +108,7 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                           'Thank You!',
                           style: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1A1A2E),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -115,8 +116,7 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                           'Your order has been placed successfully',
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            color: theme.colorScheme.onSurface
-                                .withValues(alpha: 0.6),
+                            color: Colors.grey.shade600,
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -128,23 +128,22 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                             vertical: 14,
                           ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.08),
+                            color: const Color(0xFFE94560).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.receipt_outlined,
                                 size: 20,
-                                color: theme.colorScheme.primary,
+                                color: Color(0xFFE94560),
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 'Order #${widget.orderId.length > 8 ? widget.orderId.substring(0, 8) : widget.orderId}',
                                 style: theme.textTheme.titleSmall?.copyWith(
-                                  color: theme.colorScheme.primary,
+                                  color: const Color(0xFFE94560),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -158,12 +157,20 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                           width: double.infinity,
                           height: 56,
                           child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE94560),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
                             onPressed: () {
                               context.push(
                                 '${AppRoutes.orderDetail}?orderId=${widget.orderId}',
                               );
                             },
-                            child: const Text('View Order Details'),
+                            child: const Text('View Order Details', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -171,8 +178,15 @@ class _ThankYouScreenState extends State<ThankYouScreen>
                           width: double.infinity,
                           height: 56,
                           child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF1A1A2E),
+                              side: const BorderSide(color: Color(0xFF1A1A2E), width: 2),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                             onPressed: () => context.go(AppRoutes.home),
-                            child: const Text('Continue Shopping'),
+                            child: const Text('Continue Shopping', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
                           ),
                         ),
                       ],

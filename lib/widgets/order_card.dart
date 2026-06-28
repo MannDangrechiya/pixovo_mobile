@@ -29,6 +29,8 @@ class OrderCard extends StatelessWidget {
         return AppTheme.success;
       case OrderStatus.cancelled:
         return AppTheme.error;
+      case OrderStatus.cart:
+        return const Color(0xFF9CA3AF);
     }
   }
 
@@ -46,6 +48,8 @@ class OrderCard extends StatelessWidget {
         return Icons.done_all;
       case OrderStatus.cancelled:
         return Icons.cancel_outlined;
+      case OrderStatus.cart:
+        return Icons.shopping_cart_outlined;
     }
   }
 

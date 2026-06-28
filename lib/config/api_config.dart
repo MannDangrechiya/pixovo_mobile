@@ -29,6 +29,7 @@ class ApiConfig {
   static const String templatesList = '/template/list';
   static const String templateDetail = '/template/detail';
   static const String allTemplatesList = '/template/all-list';
+  static const String homeDetail = '/home/detail';
 
   // ── Image Endpoints ────────────────────────────────────────────
   static const String addImage = '/image/add';
