@@ -89,7 +89,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         backgroundColor: const Color(0xFF1A1A2E),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Checkout', style: TextStyle(fontWeight: FontWeight.w600)),
+        title: const Text('Checkout',
+            style: TextStyle(fontWeight: FontWeight.w600)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -105,11 +106,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           currentStep: _currentStep,
           onStepContinue: () {
             if (_currentStep == 0) {
-              if (_formKey.currentState!.validate()) {
+              if (addrState.selectedAddress != null) {
                 setState(() => _currentStep = 1);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select an address')),
+                );
               }
             } else if (_currentStep == 1) {
-              _placeOrder();
+              setState(() => _currentStep = 2);
+            } else if (_currentStep == 2) {
+              _handlePlaceOrder();
             }
           },
           onStepCancel: () {
@@ -126,106 +133,28 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               title: const Text('Shipping Address', style: TextStyle(fontWeight: FontWeight.w600)),
               isActive: _currentStep >= 0,
               state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-              content: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        prefixIcon: Icon(Icons.person_outline),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _line1Controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Address Line 1',
-                        prefixIcon: Icon(Icons.location_on_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (v) =>
-                          v == null || v.isEmpty ? 'Required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _line2Controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Address Line 2 (Optional)',
-                        prefixIcon: Icon(Icons.location_on_outlined),
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _cityController,
-                            decoration: const InputDecoration(
-                              labelText: 'City',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? 'Required' : null,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _stateController,
-                            decoration: const InputDecoration(
-                              labelText: 'State',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? 'Required' : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _zipController,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                              labelText: 'PIN Code',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              if (v.length != 6) return 'Must be 6 digits';
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _phoneController,
-                            keyboardType: TextInputType.phone,
-                            decoration: const InputDecoration(
-                              labelText: 'Phone',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (v) {
-                              if (v == null || v.isEmpty) return 'Required';
-                              if (v.length < 10) return 'Invalid phone';
-                              return null;
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (addrState.isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (addrState.addresses.isEmpty)
+                    const Text('No saved addresses.')
+                  else
+                    ...addrState.addresses.map((addr) => _AddressTile(
+                          address: addr,
+                          isSelected: addrState.selectedAddress?.id == addr.id,
+                          onTap: () {
+                            ref.read(addressProvider.notifier).selectAddress(addr);
+                          },
+                        )),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    onPressed: _openAddSheet,
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add New Address'),
+                  ),
+                ],
               ),
             ),
 
@@ -233,6 +162,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             Step(
               title: const Text('Review Order', style: TextStyle(fontWeight: FontWeight.w600)),
               isActive: _currentStep >= 1,
+              state: _currentStep > 1 ? StepState.complete : StepState.indexed,
               content: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -258,7 +188,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...state.cartItems.map((item) => Padding(
+                    ...orderState.cartItems.map((item) => Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -288,7 +218,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                         ),
                         Text(
-                          '₹${state.cartTotal.toStringAsFixed(2)}',
+                          '₹${orderState.cartTotal.toStringAsFixed(2)}',
                           style: theme.textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFFE94560),
@@ -299,7 +229,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     const SizedBox(height: 24),
 
                     // Shipping address summary
-                    if (_nameController.text.isNotEmpty) ...[
+                    if (addrState.selectedAddress != null) ...[
                       Text(
                         'Shipping to:',
                         style: theme.textTheme.titleSmall?.copyWith(
@@ -309,10 +239,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${_nameController.text}\n'
-                        '${_line1Controller.text}'
-                        '${_line2Controller.text.isNotEmpty ? '\n${_line2Controller.text}' : ''}\n'
-                        '${_cityController.text}, ${_stateController.text} ${_zipController.text}',
+                        addrState.selectedAddress!.formattedAddress,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           height: 1.5,
                           color: Colors.grey.shade600,
@@ -320,13 +247,50 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                     ],
 
-                    if (state.isLoading)
+                    if (orderState.isLoading)
                       const Padding(
                         padding: EdgeInsets.only(top: 24),
                         child: Center(child: CircularProgressIndicator(color: Color(0xFFE94560))),
                       ),
                   ],
                 ),
+              ),
+            ),
+            
+            // Step 3: Payment
+            Step(
+              title: const Text('Payment', style: TextStyle(fontWeight: FontWeight.w600)),
+              isActive: _currentStep >= 2,
+              content: Column(
+                children: [
+                  _PaymentMethodTile(
+                    label: 'UPI',
+                    icon: Icons.account_balance_wallet_outlined,
+                    value: PaymentMethod.upi,
+                    groupValue: _selectedPaymentMethod,
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedPaymentMethod = val);
+                    },
+                  ),
+                  _PaymentMethodTile(
+                    label: 'Credit / Debit Card',
+                    icon: Icons.credit_card,
+                    value: PaymentMethod.card,
+                    groupValue: _selectedPaymentMethod,
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedPaymentMethod = val);
+                    },
+                  ),
+                  _PaymentMethodTile(
+                    label: 'Net Banking',
+                    icon: Icons.account_balance,
+                    value: PaymentMethod.netBanking,
+                    groupValue: _selectedPaymentMethod,
+                    onChanged: (val) {
+                      if (val != null) setState(() => _selectedPaymentMethod = val);
+                    },
+                  ),
+                ],
               ),
             ),
           ],

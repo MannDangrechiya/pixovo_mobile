@@ -17,6 +17,7 @@ import '../screens/orders/cart_screen.dart';
 import '../screens/orders/order_list_screen.dart';
 import '../screens/orders/order_detail_screen.dart';
 import '../screens/orders/checkout_screen.dart';
+import '../screens/orders/payment_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/profile/edit_profile_screen.dart';
 import '../screens/profile/settings_screen.dart';
@@ -44,6 +45,7 @@ class AppRoutes {
   static const String orderList = '/orders';
   static const String orderDetail = '/orders/detail';
   static const String checkout = '/orders/checkout';
+  static const String payment = '/orders/payment';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String settings = '/profile/settings';
@@ -154,6 +156,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.checkout,
         name: 'checkout',
         builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.payment,
+        name: 'payment',
+        builder: (context, state) {
+          final orderId = state.uri.queryParameters['orderId'] ?? '';
+          final amountStr = state.uri.queryParameters['amount'] ?? '0';
+          final amount = double.tryParse(amountStr) ?? 0.0;
+          return PaymentScreen(orderId: orderId, amount: amount);
+        },
       ),
       GoRoute(
         path: AppRoutes.profile,
