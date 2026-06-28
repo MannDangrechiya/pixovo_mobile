@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../config/routes.dart';
+import '../../models/shipping_address.dart';
+import '../../models/payment.dart';
 import '../../providers/order_provider.dart';
+import '../../providers/address_provider.dart';
+import '../../widgets/add_address_sheet.dart';
 
-/// Checkout screen with shipping address form and order summary.
+/// Checkout screen — three steps: Address → Review → Payment.
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -14,30 +18,23 @@ class CheckoutScreen extends ConsumerStatefulWidget {
 }
 
 class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _line1Controller = TextEditingController();
-  final _line2Controller = TextEditingController();
-  final _cityController = TextEditingController();
-  final _stateController = TextEditingController();
-  final _zipController = TextEditingController();
-  final _phoneController = TextEditingController();
   int _currentStep = 0;
+  PaymentMethod _selectedPaymentMethod = PaymentMethod.upi;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _line1Controller.dispose();
-    _line2Controller.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
-    _zipController.dispose();
-    _phoneController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(addressProvider.notifier).loadAddresses();
+    });
   }
 
-  Future<void> _placeOrder() async {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _handlePlaceOrder() async {
+    final addrState = ref.read(addressProvider);
+    if (addrState.selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a delivery address.')),
+      );
       setState(() => _currentStep = 0);
       return;
     }
@@ -47,18 +44,21 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     final order = await ref.read(orderProvider.notifier).placeOrder(
           templateId: orderState.cartItems.first.templateId,
-          shippingAddressId: 'temp-address-id', // Will be set by backend
+          shippingAddressId: addrState.selectedAddress!.id ?? '',
         );
 
     if (!mounted) return;
 
     if (order != null) {
-      context.go('${AppRoutes.thankYou}?orderId=${order.id}');
+      // Navigate to payment gateway screen.
+      context.push(
+        '${AppRoutes.payment}?orderId=${order.id}&amount=${order.totalAmount}',
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            ref.read(orderProvider).errorMessage ?? 'Failed to place order',
+            ref.read(orderProvider).errorMessage ?? 'Failed to place order.',
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
@@ -66,10 +66,22 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     }
   }
 
+  void _openAddSheet() async {
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => const AddAddressSheet(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final state = ref.watch(orderProvider);
+    final orderState = ref.watch(orderProvider);
+    final addrState = ref.watch(addressProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
@@ -317,6 +329,127 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Address Tile ──────────────────────────────────────────────────────────────
+
+class _AddressTile extends StatelessWidget {
+  final ShippingAddress address;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _AddressTile({
+    required this.address,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: RadioListTile<bool>(
+        value: true,
+        groupValue: isSelected,
+        onChanged: (_) => onTap(),
+        activeColor: theme.colorScheme.primary,
+        title: Row(
+          children: [
+            Text(
+              address.name,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            if (address.isDefault) ...[
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Default',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            address.formattedAddress,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Payment Method Tile ───────────────────────────────────────────────────────
+
+class _PaymentMethodTile extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final PaymentMethod value;
+  final PaymentMethod groupValue;
+  final ValueChanged<PaymentMethod?> onChanged;
+
+  const _PaymentMethodTile({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.groupValue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isSelected = value == groupValue;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline.withValues(alpha: 0.3),
+          width: isSelected ? 2 : 1,
+        ),
+      ),
+      child: RadioListTile<PaymentMethod>(
+        value: value,
+        groupValue: groupValue,
+        onChanged: onChanged,
+        activeColor: theme.colorScheme.primary,
+        title: Row(
+          children: [
+            Icon(icon, size: 20, color: theme.colorScheme.primary),
+            const SizedBox(width: 10),
+            Text(label),
           ],
         ),
       ),
